@@ -5,7 +5,7 @@ from pydantic import ConfigDict, EmailStr, Field
 
 from src.schemas.base import IDSchema, TimestampedSchema
 
-
+# PUBLIC_INTERFACE
 class UserBase(PydBaseModel):
     """Shared properties for User entities (excludes password hash)."""
     email: EmailStr = Field(..., description="Unique email address")
@@ -16,12 +16,12 @@ class UserBase(PydBaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
+# PUBLIC_INTERFACE
 class UserCreate(UserBase):
     """Payload for creating a new user (accepts plaintext password)."""
     password: str = Field(..., min_length=6, description="Plaintext password for account setup")
 
-
+# PUBLIC_INTERFACE
 class UserUpdate(PydBaseModel):
     """Payload for updating user profile fields."""
     full_name: str | None = Field(default=None)
@@ -29,12 +29,12 @@ class UserUpdate(PydBaseModel):
     is_active: bool | None = Field(default=None)
     is_superuser: bool | None = Field(default=None)
 
-
+# PUBLIC_INTERFACE
 class UserRead(IDSchema, TimestampedSchema, UserBase):
     """Representation of a user returned by the API."""
     pass
 
-
+# PUBLIC_INTERFACE
 class UserSummary(IDSchema):
     """Lightweight representation for embedding inside related models."""
     email: EmailStr
