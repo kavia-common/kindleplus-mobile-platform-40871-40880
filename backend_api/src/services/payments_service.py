@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol, Dict, Any
-from ..core.config import settings
+from src.core.config import settings
 import uuid
 
 
@@ -60,13 +60,13 @@ class RazorpayProvider(PaymentProvider):
 # PUBLIC_INTERFACE
 def get_payment_provider() -> PaymentProvider:
     """Return active payment provider based on settings."""
-    p = settings.PAYMENT_PROVIDER.lower()
-    if p == "stripe" and settings.STRIPE_SECRET_KEY:
-        return StripeProvider(secret_key=settings.STRIPE_SECRET_KEY, webhook_secret=settings.STRIPE_WEBHOOK_SECRET)
-    if p == "razorpay" and settings.RAZORPAY_KEY_ID and settings.RAZORPAY_KEY_SECRET:
+    p = (settings.payment_provider or "mock").lower()
+    if p == "stripe" and settings.stripe_secret_key:
+        return StripeProvider(secret_key=settings.stripe_secret_key, webhook_secret=settings.stripe_webhook_secret)
+    if p == "razorpay" and settings.razorpay_key_id and settings.razorpay_key_secret:
         return RazorpayProvider(
-            key_id=settings.RAZORPAY_KEY_ID,
-            key_secret=settings.RAZORPAY_KEY_SECRET,
-            webhook_secret=settings.RAZORPAY_WEBHOOK_SECRET,
+            key_id=settings.razorpay_key_id,
+            key_secret=settings.razorpay_key_secret,
+            webhook_secret=settings.razorpay_webhook_secret,
         )
     return MockProvider()

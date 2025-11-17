@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Protocol, Optional, Tuple
 from urllib.parse import urlencode
 
-from ..core.config import settings
+from src.core.config import settings
 
 
 class StorageBackend(Protocol):
@@ -78,16 +78,16 @@ class GCSStorage(StorageBackend):
 # PUBLIC_INTERFACE
 def get_storage() -> StorageBackend:
     """Return a storage backend instance based on configuration."""
-    backend = settings.STORAGE_BACKEND.lower()
+    backend = (settings.storage_backend or "local").lower()
     if backend == "s3":
         return S3Storage(
-            bucket=settings.S3_BUCKET or "",
-            region=settings.S3_REGION,
-            access_key_id=settings.S3_ACCESS_KEY_ID,
-            secret_access_key=settings.S3_SECRET_ACCESS_KEY,
+            bucket=settings.s3_bucket or "",
+            region=settings.s3_region,
+            access_key_id=settings.s3_access_key_id,
+            secret_access_key=settings.s3_secret_access_key,
         )
     if backend == "gcs":
-        return GCSStorage(bucket=settings.GCS_BUCKET or "", credentials_json=settings.GCS_CREDENTIALS_JSON)
+        return GCSStorage(bucket=settings.gcs_bucket or "", credentials_json=settings.gcs_credentials_json)
     # default local
-    os.makedirs(settings.STORAGE_LOCAL_DIR, exist_ok=True)
-    return LocalStorage(base_dir=settings.STORAGE_LOCAL_DIR)
+    os.makedirs(settings.storage_local_dir, exist_ok=True)
+    return LocalStorage(base_dir=settings.storage_local_dir)

@@ -119,3 +119,7 @@ def get_settings() -> Settings:
 @lru_cache(maxsize=1)
 def _get_settings_cached() -> Settings:
     return Settings()
+
+
+# Expose a module-level singleton to simplify imports: from src.core.config import settings
+settings: Settings = _get_settings_cached()

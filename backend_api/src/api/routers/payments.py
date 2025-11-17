@@ -1,15 +1,18 @@
 from __future__ import annotations
-from fastapi import APIRouter, HTTPException, Request, Depends
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Request, Depends, Header
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
 from ...services.payments_service import get_payment_provider
-from ...services.auth_service import verify_token
+from ...services.auth_service import get_token_payload
 from ...db.session import SessionLocal
 from ...models.purchase import Purchase
 from ...models.book import Book
-from sqlalchemy.orm import Session
 
 router = APIRouter()
+
 
 def _get_db():
     db = SessionLocal()
@@ -18,24 +21,34 @@ def _get_db():
     finally:
         db.close()
 
-def _auth_required(authorization: Optional[str] = None):
+
+def _auth_required(authorization: Optional[str] = Header(None)):
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
     token = authorization.split(" ", 1)[1]
     try:
-        return verify_token(token, expected_type="access")
+        return get_token_payload(token, expected_type="access")
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
+
 
 class PaymentInitRequest(BaseModel):
     book_id: str = Field(..., description="Book ID to purchase")
     currency: Optional[str] = Field(None, description="Currency code, defaults to backend setting")
 
+
 class PaymentInitResponse(BaseModel):
     provider: str
     data: dict
 
-@router.post("/init", response_model=PaymentInitResponse, summary="Create payment session", description="Initialize a payment session for purchasing a book.", tags=["Payments"])
+
+@router.post(
+    "/init",
+    response_model=PaymentInitResponse,
+    summary="Create payment session",
+    description="Initialize a payment session for purchasing a book.",
+    tags=["Payments"],
+)
 def create_payment_session(req: PaymentInitRequest, auth=Depends(_auth_required), db: Session = Depends(_get_db)):
     user_id = auth["sub"]
     book = db.query(Book).filter(Book.id == req.book_id).first()
@@ -48,7 +61,14 @@ def create_payment_session(req: PaymentInitRequest, auth=Depends(_auth_required)
     session_data = provider.create_session(user_id=user_id, book_id=book.id, amount_cents=amount_cents, currency=currency)
     return PaymentInitResponse(provider=session_data.get("provider", "mock"), data=session_data)
 
-@router.post("/webhook", status_code=200, summary="Payment webhook", description="Receive payment provider webhooks to confirm payments and create purchases.", tags=["Payments"])
+
+@router.post(
+    "/webhook",
+    status_code=200,
+    summary="Payment webhook",
+    description="Receive payment provider webhooks to confirm payments and create purchases.",
+    tags=["Payments"],
+)
 async def payment_webhook(request: Request, db: Session = Depends(_get_db)):
     payload = await request.body()
     headers = {k: v for k, v in request.headers.items()}
