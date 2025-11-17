@@ -31,21 +31,41 @@ class Settings(BaseModel):
     description: str = os.getenv(
         "PROJECT_DESCRIPTION",
         "Backend API for the KindlePlus mobile platform providing auth, catalog, "
-        "purchases, wishlist, and file storage integrations.",
+        "purchases, wishlist, storage, payments, and analytics.",
     )
     environment: str = os.getenv("ENVIRONMENT", "development")
-    version: str = os.getenv("APP_VERSION", "0.1.0")
+    version: str = os.getenv("APP_VERSION", "0.2.0")
 
     # A secret used for cryptographic operations (JWT etc.) – must be set in production!
-    secret_key: str = os.getenv("SECRET_KEY", "change-me")
+    secret_key: str = os.getenv("JWT_SECRET", os.getenv("SECRET_KEY", "change-me"))
 
     # JWT configuration
-    access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
-    refresh_token_expire_minutes: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES", str(60 * 24 * 7)))
+    access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))
+    # store refresh in minutes for simplicity: default 30 days
+    refresh_token_expire_minutes: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", str(30))) * 24 * 60
     jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")
 
     # Google OAuth config
-    google_client_id: str = os.getenv("GOOGLE_CLIENT_ID", "")
+    google_client_id: str = os.getenv("OAUTH_GOOGLE_CLIENT_ID", os.getenv("GOOGLE_CLIENT_ID", ""))
+
+    # Storage config
+    storage_backend: str = os.getenv("STORAGE_BACKEND", "local")
+    storage_local_dir: str = os.getenv("STORAGE_LOCAL_DIR", "data/storage")
+    s3_bucket: str = os.getenv("S3_BUCKET", "")
+    s3_region: str = os.getenv("S3_REGION", "")
+    s3_access_key_id: str = os.getenv("S3_ACCESS_KEY_ID", "")
+    s3_secret_access_key: str = os.getenv("S3_SECRET_ACCESS_KEY", "")
+    gcs_bucket: str = os.getenv("GCS_BUCKET", "")
+    gcs_credentials_json: str = os.getenv("GCS_CREDENTIALS_JSON", "")
+
+    # Payments
+    payment_provider: str = os.getenv("PAYMENT_PROVIDER", "mock")
+    stripe_secret_key: str = os.getenv("STRIPE_SECRET_KEY", "")
+    stripe_webhook_secret: str = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+    razorpay_key_id: str = os.getenv("RAZORPAY_KEY_ID", "")
+    razorpay_key_secret: str = os.getenv("RAZORPAY_KEY_SECRET", "")
+    razorpay_webhook_secret: str = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
+    currency_default: str = os.getenv("CURRENCY_DEFAULT", "USD")
 
     # Comma-separated list, e.g. "http://localhost:3000,https://myapp.com"
     cors_origins: List[str] = []
@@ -61,7 +81,7 @@ class Settings(BaseModel):
 
     def __init__(self, **data):
         # Parse CORS
-        cors_raw = os.getenv("CORS_ORIGINS", "*").strip()
+        cors_raw = os.getenv("CORS_ALLOWED_ORIGINS", os.getenv("CORS_ORIGINS", "*")).strip()
         if cors_raw in ("", "*"):
             data["cors_origins"] = ["*"]
         else:

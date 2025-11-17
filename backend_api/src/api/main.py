@@ -14,6 +14,9 @@ from src.api.routers.wishlist import router as wishlist_router
 from src.api.routers.purchases import router as purchases_router
 from src.api.routers.library import router as library_router
 from src.api.routers.reading import router as reading_router
+from src.api.routers.storage import router as storage_router
+from src.api.routers.payments import router as payments_router
+from src.api.routers.admin import router as admin_router
 
 settings = get_settings()
 
@@ -50,6 +53,18 @@ openapi_tags = [
         "name": "Reading",
         "description": "Endpoints for tracking and updating reading progress.",
     },
+    {
+        "name": "Storage",
+        "description": "Endpoints for requesting presigned upload/download URLs for book assets.",
+    },
+    {
+        "name": "Payments",
+        "description": "Endpoints for creating payment sessions and receiving payment webhooks.",
+    },
+    {
+        "name": "Admin",
+        "description": "Admin analytics and management endpoints.",
+    },
 ]
 
 app = FastAPI(
@@ -68,7 +83,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -80,6 +95,11 @@ app.include_router(wishlist_router)
 app.include_router(purchases_router)
 app.include_router(library_router)
 app.include_router(reading_router)
+
+# New routers
+app.include_router(storage_router, prefix="/storage", tags=["Storage"])
+app.include_router(payments_router, prefix="/payments", tags=["Payments"])
+app.include_router(admin_router, prefix="/admin", tags=["Admin"])
 
 
 class HealthResponse(BaseModel):

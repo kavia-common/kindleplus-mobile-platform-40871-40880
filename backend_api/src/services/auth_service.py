@@ -101,7 +101,7 @@ def create_token_pair_for_user(user: User, *, settings: Optional[Settings] = Non
     """Create an access and refresh token pair for a given user."""
     if settings is None:
         settings = get_settings()
-    access = create_access_token(user.id, settings=settings, extra_claims={"email": user.email})
+    access = create_access_token(user.id, settings=settings, extra_claims={"email": user.email, "is_superuser": user.is_superuser})
     refresh = create_refresh_token(user.id, settings=settings)
     return access, refresh
 
