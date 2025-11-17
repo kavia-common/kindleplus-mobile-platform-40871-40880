@@ -1,0 +1,4 @@
+{
+    "command": "pytest",
+    "working_directory": "/home/kavia/workspace/code-generation/kindleplus-mobile-platform-40871-40880/backend_api"
+}
