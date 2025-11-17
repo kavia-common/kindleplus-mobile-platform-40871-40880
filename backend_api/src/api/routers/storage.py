@@ -3,8 +3,8 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel, Field
 
-from ...services.storage_service import get_storage
-from ...services.auth_service import get_token_payload
+from src.services.storage_service import get_storage
+from src.services.auth_service import get_token_payload
 
 router = APIRouter()
 

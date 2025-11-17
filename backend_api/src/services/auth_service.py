@@ -123,6 +123,24 @@ def get_token_payload(token: str, *, expected_type: Optional[str] = None, cfg: O
 
 
 # PUBLIC_INTERFACE
+def verify_token(token: str, expected_type: Optional[str] = None, cfg: Optional[Settings] = None) -> Dict[str, Any]:
+    """Backward-compatible wrapper around get_token_payload.
+
+    Parameters:
+        token: The JWT token string.
+        expected_type: Optional token type to assert ('access' or 'refresh').
+        cfg: Optional settings override.
+
+    Returns:
+        Decoded JWT payload (dict).
+
+    Raises:
+        HTTPException 401: If token is invalid or type does not match expected_type.
+    """
+    return get_token_payload(token, expected_type=expected_type, cfg=cfg)
+
+
+# PUBLIC_INTERFACE
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),

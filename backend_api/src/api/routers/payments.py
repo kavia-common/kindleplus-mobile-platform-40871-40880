@@ -5,21 +5,13 @@ from fastapi import APIRouter, HTTPException, Request, Depends, Header
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from ...services.payments_service import get_payment_provider
-from ...services.auth_service import get_token_payload
-from ...db.session import SessionLocal
-from ...models.purchase import Purchase
-from ...models.book import Book
+from src.services.payments_service import get_payment_provider
+from src.services.auth_service import get_token_payload
+from src.db.session import get_db
+from src.models.purchase import Purchase
+from src.models.book import Book
 
 router = APIRouter()
-
-
-def _get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _auth_required(authorization: Optional[str] = Header(None)):
@@ -49,7 +41,7 @@ class PaymentInitResponse(BaseModel):
     description="Initialize a payment session for purchasing a book.",
     tags=["Payments"],
 )
-def create_payment_session(req: PaymentInitRequest, auth=Depends(_auth_required), db: Session = Depends(_get_db)):
+def create_payment_session(req: PaymentInitRequest, auth=Depends(_auth_required), db: Session = Depends(get_db)):
     user_id = auth["sub"]
     book = db.query(Book).filter(Book.id == req.book_id).first()
     if not book:
@@ -69,7 +61,7 @@ def create_payment_session(req: PaymentInitRequest, auth=Depends(_auth_required)
     description="Receive payment provider webhooks to confirm payments and create purchases.",
     tags=["Payments"],
 )
-async def payment_webhook(request: Request, db: Session = Depends(_get_db)):
+async def payment_webhook(request: Request, db: Session = Depends(get_db)):
     payload = await request.body()
     headers = {k: v for k, v in request.headers.items()}
     provider = get_payment_provider()

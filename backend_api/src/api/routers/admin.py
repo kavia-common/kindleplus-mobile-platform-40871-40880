@@ -1,25 +1,25 @@
 from __future__ import annotations
-from fastapi import APIRouter, HTTPException, Depends, Query, Header
-from typing import Optional
+
 from datetime import date, timedelta
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from sqlalchemy import desc, func
 from sqlalchemy.orm import Session
-from ...db.session import SessionLocal
-from ...models.purchase import Purchase
-from ...models.book import Book
-from ...models.user import User
-from sqlalchemy import func, desc
-from ...services.auth_service import get_token_payload
+
+from src.db.session import get_db
+from src.models.book import Book
+from src.models.purchase import Purchase
+from src.models.user import User
+from src.services.auth_service import get_token_payload
 
 router = APIRouter()
 
-def _get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
-def _admin_required(authorization: Optional[str] = Header(None), db: Session = Depends(_get_db)):
+def _admin_required(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
+    """
+    Require a valid bearer access token and ensure the user is a superuser.
+    """
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
     token = authorization.split(" ", 1)[1]
@@ -32,8 +32,12 @@ def _admin_required(authorization: Optional[str] = Header(None), db: Session = D
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
 
+
 @router.get("/stats/sales_by_day", summary="Sales by day", description="Daily sales counts and revenue.", tags=["Admin"])
-def sales_by_day(days: int = Query(7, ge=1, le=90), admin=Depends(_admin_required), db: Session = Depends(_get_db)):
+def sales_by_day(days: int = Query(7, ge=1, le=90), admin=Depends(_admin_required), db: Session = Depends(get_db)):
+    """
+    Daily sales counts and revenue.
+    """
     end = date.today()
     start = end - timedelta(days=days - 1)
     rows = (
@@ -45,8 +49,12 @@ def sales_by_day(days: int = Query(7, ge=1, le=90), admin=Depends(_admin_require
     )
     return [{"date": str(r[0]), "count": int(r[1] or 0), "revenue_cents": int(r[2] or 0)} for r in rows]
 
+
 @router.get("/stats/top_books", summary="Top books", description="Top selling books by count.", tags=["Admin"])
-def top_books(limit: int = Query(5, ge=1, le=50), admin=Depends(_admin_required), db: Session = Depends(_get_db)):
+def top_books(limit: int = Query(5, ge=1, le=50), admin=Depends(_admin_required), db: Session = Depends(get_db)):
+    """
+    Top selling books by count.
+    """
     rows = (
         db.query(Book.title, func.count(Purchase.id).label("cnt"))
         .join(Purchase, Purchase.book_id == Book.id)
@@ -57,8 +65,12 @@ def top_books(limit: int = Query(5, ge=1, le=50), admin=Depends(_admin_required)
     )
     return [{"title": r[0], "count": int(r[1])} for r in rows]
 
+
 @router.get("/stats/summary", summary="Summary metrics", description="Revenue and user counts.", tags=["Admin"])
-def summary(admin=Depends(_admin_required), db: Session = Depends(_get_db)):
+def summary(admin=Depends(_admin_required), db: Session = Depends(get_db)):
+    """
+    Summary metrics for revenue and user counts.
+    """
     revenue = db.query(func.coalesce(func.sum(Purchase.price_cents), 0)).scalar() or 0
     users = db.query(func.count(User.id)).scalar() or 0
     return {"revenue_cents": int(revenue), "users": int(users)}
