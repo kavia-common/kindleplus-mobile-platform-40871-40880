@@ -8,6 +8,8 @@ from pydantic import BaseModel, Field
 
 from src.core.config import get_settings
 from src.api.routers.auth import router as auth_router
+from src.api.routers.books import router as books_router
+from src.api.routers.categories import router as categories_router
 
 settings = get_settings()
 
@@ -19,6 +21,14 @@ openapi_tags = [
     {
         "name": "Auth",
         "description": "Authentication endpoints: password login, token refresh, and Google OAuth sign-in.",
+    },
+    {
+        "name": "Books",
+        "description": "Catalog endpoints for managing and browsing books (search, filters, pagination).",
+    },
+    {
+        "name": "Categories",
+        "description": "Endpoints for managing and listing book categories.",
     },
 ]
 
@@ -44,6 +54,8 @@ app.add_middleware(
 
 # Routers
 app.include_router(auth_router)
+app.include_router(categories_router)
+app.include_router(books_router)
 
 
 class HealthResponse(BaseModel):
