@@ -5,7 +5,6 @@ from typing import Generic, List, Tuple, TypeVar
 
 from pydantic import BaseModel as PydBaseModel
 from pydantic import Field
-from pydantic.generics import GenericModel
 
 T = TypeVar("T")
 
@@ -34,7 +33,7 @@ class PageMeta(PydBaseModel):
         return PageMeta(page=page, page_size=page_size, total=total, total_pages=total_pages)
 
 
-class Paginated(GenericModel, Generic[T]):
+class Paginated(PydBaseModel, Generic[T]):
     """Generic paginated response wrapper."""
     items: List[T] = Field(..., description="List of items for the current page")
     meta: PageMeta = Field(..., description="Pagination metadata")

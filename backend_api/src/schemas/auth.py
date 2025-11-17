@@ -3,10 +3,7 @@ from __future__ import annotations
 from pydantic import BaseModel as PydBaseModel
 from pydantic import ConfigDict, EmailStr, Field
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from src.schemas.user import UserRead
+from src.schemas.user import UserRead
 
 
 class LoginRequest(PydBaseModel):
@@ -45,6 +42,6 @@ class TokenPayload(PydBaseModel):
 class AuthResponse(PydBaseModel):
     """Authentication response containing tokens and the authenticated user profile."""
     tokens: TokenPair = Field(..., description="Access and refresh tokens")
-    user: "UserRead" = Field(..., description="Authenticated user information")
+    user: UserRead = Field(..., description="Authenticated user information")
 
     model_config = ConfigDict(from_attributes=True)
