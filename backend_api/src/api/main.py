@@ -10,6 +10,10 @@ from src.core.config import get_settings
 from src.api.routers.auth import router as auth_router
 from src.api.routers.books import router as books_router
 from src.api.routers.categories import router as categories_router
+from src.api.routers.wishlist import router as wishlist_router
+from src.api.routers.purchases import router as purchases_router
+from src.api.routers.library import router as library_router
+from src.api.routers.reading import router as reading_router
 
 settings = get_settings()
 
@@ -29,6 +33,22 @@ openapi_tags = [
     {
         "name": "Categories",
         "description": "Endpoints for managing and listing book categories.",
+    },
+    {
+        "name": "Wishlist",
+        "description": "Endpoints for managing the authenticated user's wishlist.",
+    },
+    {
+        "name": "Purchases",
+        "description": "Endpoints for managing purchases and viewing order history.",
+    },
+    {
+        "name": "Library",
+        "description": "Endpoints for managing and listing the authenticated user's library.",
+    },
+    {
+        "name": "Reading",
+        "description": "Endpoints for tracking and updating reading progress.",
     },
 ]
 
@@ -56,6 +76,10 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(categories_router)
 app.include_router(books_router)
+app.include_router(wishlist_router)
+app.include_router(purchases_router)
+app.include_router(library_router)
+app.include_router(reading_router)
 
 
 class HealthResponse(BaseModel):
