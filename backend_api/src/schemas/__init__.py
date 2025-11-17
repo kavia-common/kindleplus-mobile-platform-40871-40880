@@ -1,14 +1,13 @@
-# Re-export common schema types for cross-module usage.
 from .base import (
-    BaseModel,
     IDSchema,
+    TimestampedSchema,
     ResponseMessage,
     PaginationMeta,
 )
 
 __all__ = [
-    "BaseModel",
     "IDSchema",
+    "TimestampedSchema",
     "ResponseMessage",
     "PaginationMeta",
 ]
