@@ -52,9 +52,3 @@ class AuthResponse(BaseModel):
     user: UserRead = Field(..., description="Authenticated user information")
 
     model_config = ConfigDict(from_attributes=True)
-
-
-# This config disables __getattr__ dynamic attribute fallback for old BaseModel.
-# You may have legacy models requiring this flag. If not needed, omit.
-# class Config:
-#     arbitrary_types_allowed = True
