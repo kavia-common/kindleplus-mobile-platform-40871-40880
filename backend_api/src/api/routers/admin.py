@@ -1,5 +1,5 @@
 from __future__ import annotations
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, Header
 from typing import Optional
 from datetime import date, timedelta
 from sqlalchemy.orm import Session
@@ -8,7 +8,7 @@ from ...models.purchase import Purchase
 from ...models.book import Book
 from ...models.user import User
 from sqlalchemy import func, desc
-from ...services.auth_service import verify_token
+from ...services.auth_service import get_token_payload
 
 router = APIRouter()
 
@@ -19,12 +19,12 @@ def _get_db():
     finally:
         db.close()
 
-def _admin_required(authorization: Optional[str] = None, db: Session = Depends(_get_db)):
+def _admin_required(authorization: Optional[str] = Header(None), db: Session = Depends(_get_db)):
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
     token = authorization.split(" ", 1)[1]
     try:
-        claims = verify_token(token, expected_type="access")
+        claims = get_token_payload(token, expected_type="access")
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
     user = db.query(User).filter(User.id == claims["sub"]).first()

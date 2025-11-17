@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from src.core.config import get_settings
+from src.core.config import settings
 from src.api.routers.auth import router as auth_router
 from src.api.routers.books import router as books_router
 from src.api.routers.categories import router as categories_router
@@ -18,7 +18,7 @@ from src.api.routers.storage import router as storage_router
 from src.api.routers.payments import router as payments_router
 from src.api.routers.admin import router as admin_router
 
-settings = get_settings()
+settings = settings  # module-level singleton imported above
 
 openapi_tags = [
     {

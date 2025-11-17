@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.core.config import get_settings, Settings
+from src.core.config import settings
 from src.db.session import get_db
 from src.models.user import User
 from src.schemas.auth import (
@@ -112,7 +112,7 @@ def refresh_tokens(payload: RefreshRequest, db: Session = Depends(get_db)) -> Au
         500: {"description": "Google OAuth not configured"},
     },
 )
-def google_sign_in(payload: GoogleLoginRequest, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> AuthResponse:
+def google_sign_in(payload: GoogleLoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
     """Authenticate via Google ID token.
 
     Parameters:

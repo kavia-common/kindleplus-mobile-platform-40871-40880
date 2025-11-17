@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from src.core.config import BASE_DIR, get_settings
+from src.core.config import BASE_DIR, settings
 
 
 def _ensure_sqlite_dir(url: str) -> None:
@@ -42,16 +42,16 @@ def _ensure_sqlite_dir(url: str) -> None:
 
 
 def _create_engine() -> Engine:
-    settings = get_settings()
-    if settings.is_sqlite:
-        _ensure_sqlite_dir(settings.database_url)
+    cfg = settings
+    if cfg.is_sqlite:
+        _ensure_sqlite_dir(cfg.database_url)
         connect_args = {"check_same_thread": False}
     else:
         connect_args = {}
 
     # Use pool_pre_ping to gracefully handle stale connections
     engine = create_engine(
-        settings.database_url,
+        cfg.database_url,
         future=True,
         pool_pre_ping=True,
         connect_args=connect_args,
