@@ -39,6 +39,14 @@ class Settings(BaseModel):
     # A secret used for cryptographic operations (JWT etc.) – must be set in production!
     secret_key: str = os.getenv("SECRET_KEY", "change-me")
 
+    # JWT configuration
+    access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+    refresh_token_expire_minutes: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES", str(60 * 24 * 7)))
+    jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")
+
+    # Google OAuth config
+    google_client_id: str = os.getenv("GOOGLE_CLIENT_ID", "")
+
     # Comma-separated list, e.g. "http://localhost:3000,https://myapp.com"
     cors_origins: List[str] = []
 

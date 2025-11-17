@@ -8,6 +8,14 @@ from src.schemas.wishlist import WishlistBase, WishlistCreate, WishlistRead
 from src.schemas.purchase import PurchaseBase, PurchaseCreate, PurchaseRead
 from src.schemas.library import LibraryBase, LibraryCreate, LibraryRead
 from src.schemas.reading_progress import ReadingProgressBase, ReadingProgressCreate, ReadingProgressRead
+from src.schemas.auth import (
+    LoginRequest,
+    RefreshRequest,
+    GoogleLoginRequest,
+    TokenPair,
+    TokenPayload,
+    AuthResponse,
+)
 
 __all__ = [
     # base
@@ -47,4 +55,11 @@ __all__ = [
     "ReadingProgressBase",
     "ReadingProgressCreate",
     "ReadingProgressRead",
+    # auth
+    "LoginRequest",
+    "RefreshRequest",
+    "GoogleLoginRequest",
+    "TokenPair",
+    "TokenPayload",
+    "AuthResponse",
 ]

@@ -43,3 +43,8 @@ watchfiles==1.0.5
 websockets==15.0.1
 SQLAlchemy==2.0.37
 alembic==1.14.0
+# Auth dependencies
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+google-auth==2.35.0
+requests==2.32.3
