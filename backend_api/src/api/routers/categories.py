@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
@@ -216,7 +216,7 @@ def update_category(category_id: str, payload: CategoryUpdate, db: Session = Dep
     description="Delete a category by ID.",
     responses={204: {"description": "Category deleted"}, 404: {"description": "Category not found"}},
 )
-def delete_category(category_id: str, db: Session = Depends(get_db)) -> None:
+def delete_category(category_id: str, db: Session = Depends(get_db)) -> Response:
     """
     Delete category.
 
@@ -231,4 +231,4 @@ def delete_category(category_id: str, db: Session = Depends(get_db)) -> None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
     db.delete(category)
     db.commit()
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

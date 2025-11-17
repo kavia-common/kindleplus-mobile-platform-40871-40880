@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
@@ -212,7 +212,7 @@ def update_book(book_id: str, payload: BookUpdate, db: Session = Depends(get_db)
     description="Delete a book by ID.",
     responses={204: {"description": "Book deleted"}, 404: {"description": "Book not found"}},
 )
-def delete_book(book_id: str, db: Session = Depends(get_db)) -> None:
+def delete_book(book_id: str, db: Session = Depends(get_db)) -> Response:
     """
     Delete a book.
 
@@ -227,4 +227,4 @@ def delete_book(book_id: str, db: Session = Depends(get_db)) -> None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
     db.delete(book)
     db.commit()
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

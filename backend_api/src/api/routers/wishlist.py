@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from pydantic import BaseModel as PydBaseModel
 from pydantic import Field
 from sqlalchemy import Select, func, select
@@ -169,7 +169,7 @@ def remove_from_wishlist(
     entry_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> None:
+) -> Response:
     """
     Remove a wishlist entry by its identifier for the current user.
 
@@ -187,4 +187,4 @@ def remove_from_wishlist(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wishlist entry not found")
     db.delete(entry)
     db.commit()
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

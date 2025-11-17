@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from pydantic import BaseModel as PydBaseModel
 from pydantic import Field
 from sqlalchemy import Select, and_, func, or_, select
@@ -181,7 +181,7 @@ def remove_from_library(
     entry_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> None:
+) -> Response:
     """
     Remove a library entry by ID for the current user.
 
@@ -199,4 +199,4 @@ def remove_from_library(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Library entry not found")
     db.delete(entry)
     db.commit()
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
